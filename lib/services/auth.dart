@@ -1,3 +1,4 @@
+import 'package:chatapp/helper/helperfunctions.dart';
 import 'package:chatapp/models/user.dart';
 import 'package:chatapp/views/chat.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -67,6 +68,7 @@ class AuthService {
 
   Future signOut() async {
     try {
+      await HelperFunctions.logoutAndCleanAllData();
       return await _auth.signOut();
     } catch (e) {
       print(e.toString());

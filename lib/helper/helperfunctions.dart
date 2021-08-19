@@ -39,5 +39,8 @@ class HelperFunctions{
     SharedPreferences preferences = await SharedPreferences.getInstance();
     return await preferences.getString(sharedPreferenceUserEmailKey);
   }
-
+  static Future<void> logoutAndCleanAllData() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.clear();
+  }
 }
