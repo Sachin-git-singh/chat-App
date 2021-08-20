@@ -62,6 +62,16 @@ class _ChatState extends State<Chat> {
     });
     super.initState();
   }
+  InputDecoration _decorate(String hintText, String labelText) {
+    return InputDecoration(
+      hintText: hintText,
+      labelText: labelText,
+      border: new OutlineInputBorder(
+          borderSide: new BorderSide(color: Colors.teal)
+      ),
+      contentPadding: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,14 +95,7 @@ class _ChatState extends State<Chat> {
                         child: TextField(
                           controller: messageEditingController,
                           style: simpleTextStyle(),
-                          decoration: InputDecoration(
-                              hintText: "Message ...",
-                              hintStyle: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                              border: InputBorder.none
-                          ),
+                          decoration: _decorate("type message", "type message")
                         )),
                     SizedBox(width: 16,),
                     GestureDetector(
@@ -114,7 +117,7 @@ class _ChatState extends State<Chat> {
                               borderRadius: BorderRadius.circular(40)
                           ),
                           padding: EdgeInsets.all(12),
-                          child: Image.asset("assets/images/send.png",
+                          child: Image.asset("assets/images/send1.png",
                             height: 25, width: 25,)),
                     ),
                   ],
@@ -167,20 +170,23 @@ class MessageTile extends StatelessWidget {
                 const Color(0xff2A75BC)
               ]
                   : [
-                const Color(0x1AFFFFFF),
-                const Color(0x1AFFFFFF)
+                const Color(0xff55cd36),
+                const Color(0xff55cd36)
               ],
             )
         ),
         child: Text(message,
             textAlign: TextAlign.start,
             style: TextStyle(
-            color: Colors.white,
+            color: Colors.black,
             fontSize: 16,
             fontFamily: 'OverpassRegular',
             fontWeight: FontWeight.w300)),
       ),
     );
   }
+
+
+
 }
 

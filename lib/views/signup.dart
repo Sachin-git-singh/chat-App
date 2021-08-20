@@ -5,6 +5,7 @@ import 'package:chatapp/services/database.dart';
 import 'package:chatapp/views/chatrooms.dart';
 import 'package:chatapp/widget/widget.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SignUp extends StatefulWidget {
   final Function toggleView;
@@ -17,8 +18,7 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
   TextEditingController emailEditingController = new TextEditingController();
   TextEditingController passwordEditingController = new TextEditingController();
-  TextEditingController usernameEditingController =
-      new TextEditingController();
+  TextEditingController usernameEditingController = new TextEditingController();
 
   AuthService authService = new AuthService();
   DatabaseMethods databaseMethods = new DatabaseMethods();
@@ -27,146 +27,187 @@ class _SignUpState extends State<SignUp> {
   bool isLoading = false;
 
   singUp() async {
-
-    if(formKey.currentState.validate()){
+    if(isvalidate()) {
       setState(() {
-
         isLoading = true;
       });
 
       await authService.signUpWithEmailAndPassword(emailEditingController.text,
-          passwordEditingController.text).then((result){
-            if(result != null){
+          passwordEditingController.text).then((result) {
+        if (result != null) {
+          Map<String, String> userDataMap = {
+            "userName": usernameEditingController.text,
+            "userEmail": emailEditingController.text
+          };
 
-              Map<String,String> userDataMap = {
-                "userName" : usernameEditingController.text,
-                "userEmail" : emailEditingController.text
-              };
+          databaseMethods.addUserInfo(userDataMap);
 
-              databaseMethods.addUserInfo(userDataMap);
+          HelperFunctions.saveUserLoggedInSharedPreference(true);
+          HelperFunctions.saveUserNameSharedPreference(
+              usernameEditingController.text);
+          HelperFunctions.saveUserEmailSharedPreference(
+              emailEditingController.text);
 
-              HelperFunctions.saveUserLoggedInSharedPreference(true);
-              HelperFunctions.saveUserNameSharedPreference(usernameEditingController.text);
-              HelperFunctions.saveUserEmailSharedPreference(emailEditingController.text);
-
-              Navigator.pushReplacement(context, MaterialPageRoute(
-                  builder: (context) => ChatRoom()
-              ));
-            }
+          Navigator.pushReplacement(context, MaterialPageRoute(
+              builder: (context) => ChatRoom()
+          ));
+        }
       });
     }
+  }
+
+  bool isvalidate(){
+    String Username = usernameEditingController.text;
+    String email = emailEditingController.text;
+    String passord = passwordEditingController.text;
+    bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email);
+
+    if(email==null || email.isEmpty){
+      PrintToast("Please enter email id");
+      return false;
+    }else if(Username==null || Username.isEmpty){
+      PrintToast("Please enter Username");
+      return false;
+    }else if(!emailValid){
+      PrintToast("Please enter valid email id");
+      return false;
+    }else if(passord==null || passord.isEmpty){
+      PrintToast("Please enter your password");
+      return false;
+    }else if(passord.length<6){
+      PrintToast("Password's length should be more than 6");
+      return false;
+    }
+    return true;
+  }
+
+  void PrintToast(String str){
+    Fluttertoast.showToast(
+        msg: str,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBarMain(context),
-      body: isLoading ? Container(child: Center(child: CircularProgressIndicator(),),) :  Container(
-        padding: EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          children: [
-            Spacer(),
-            Form(
-              key: formKey,
-              child: Column(
-                children: [
-                  TextFormField(
-                    style: simpleTextStyle(),
-                    controller: usernameEditingController,
-                    validator: (val){
-                      return val.isEmpty || val.length < 3 ? "Enter Username 3+ characters" : null;
-                    },
-                    decoration: textFieldInputDecoration("username"),
+      body: isLoading ? Container(
+        child: Center(child: CircularProgressIndicator()),
+      )
+      : SingleChildScrollView (
+        child:Container(
+          padding: EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            children: [
+              Container(
+                margin: EdgeInsets.only(left: 0, top:160, right: 0, bottom:0),
+                child: Text(
+                  'Register',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 40.0,
                   ),
-                  TextFormField(
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(left: 0, top:10, right: 0, bottom:0),
+                padding: EdgeInsets.all(10),
+                child: TextFormField(
                     controller: emailEditingController,
-                    style: simpleTextStyle(),
-                    validator: (val){
-                      return RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(val) ?
-                          null : "Enter correct email";
-                    },
-                    decoration: textFieldInputDecoration("email"),
-                  ),
-                  TextFormField(
+                    decoration: _decorate("Enter Email", "Email Id")
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(10),
+                child: TextFormField(
+                    controller: usernameEditingController,
+                    decoration: _decorate("Enter Username", "username")
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(10),
+                child: TextFormField(
                     obscureText: true,
-                    style: simpleTextStyle(),
-                    decoration: textFieldInputDecoration("password"),
                     controller: passwordEditingController,
-                    validator:  (val){
-                      return val.length < 6 ? "Enter Password 6+ characters" : null;
+                    decoration: _decorate("Password", "Password")
+                ),
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              GestureDetector(
+                onTap: () {
+                  singUp();
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xff007EF4),
+                          const Color(0xff2A75BC)
+                        ],
+                      )),
+                  width: MediaQuery.of(context).size.width,
+                  child: Text(
+                    "Sign Up",
+                    style: biggerTextStyle(),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "have an account? ",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      widget.toggleView();
                     },
-
+                    child: Text(
+                      "Login",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                          decoration: TextDecoration.underline),
+                    ),
                   ),
                 ],
               ),
-            ),
-            SizedBox(
-              height: 16,
-            ),
-            GestureDetector(
-              onTap: (){
-                singUp();
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    gradient: LinearGradient(
-                      colors: [const Color(0xff007EF4), const Color(0xff2A75BC)],
-                    )),
-                width: MediaQuery.of(context).size.width,
-                child: Text(
-                  "Sign Up",
-                  style: biggerTextStyle(),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 16,
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30), color: Colors.white),
-              width: MediaQuery.of(context).size.width,
-              child: Text(
-                "Sign Up with Google",
-                style: TextStyle(fontSize: 17, color: CustomTheme.textColor),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            SizedBox(
-              height: 16,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Already have an account? ",
-                  style: simpleTextStyle(),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    widget.toggleView();
-                  },
-                  child: Text(
-                    "SignIn now",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        decoration: TextDecoration.underline),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 50,
-            )
-          ],
+              SizedBox(
+                height: 50,
+              )
+            ],
+          ),
         ),
       ),
     );
-    ;
+  }
+
+  InputDecoration _decorate(String hintText, String labelText) {
+    return InputDecoration(
+      hintText: hintText,
+      labelText: labelText,
+      border: new OutlineInputBorder(
+          borderSide: new BorderSide(color: Colors.teal)
+      ),
+      contentPadding: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+    );
   }
 }

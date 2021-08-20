@@ -110,7 +110,7 @@ class ChatRoomsTile extends StatelessWidget {
         ));
       },
       child: Container(
-        color: Colors.black26,
+        color:  Color(0xFF80DEEA),
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         child: Row(
           children: [
@@ -123,7 +123,7 @@ class ChatRoomsTile extends StatelessWidget {
               child: Text(userName.substring(0, 1),
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      color: Colors.white,
+                      color: Colors.black,
                       fontSize: 16,
                       fontFamily: 'OverpassRegular',
                       fontWeight: FontWeight.w300)),
@@ -134,7 +134,7 @@ class ChatRoomsTile extends StatelessWidget {
             Text(userName,
                 textAlign: TextAlign.start,
                 style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.black,
                     fontSize: 16,
                     fontFamily: 'OverpassRegular',
                     fontWeight: FontWeight.w300))

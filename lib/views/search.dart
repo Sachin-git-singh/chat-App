@@ -81,14 +81,14 @@ class _SearchState extends State<Search> {
               Text(
                 userName,
                 style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.black,
                     fontSize: 16
                 ),
               ),
               Text(
                 userEmail,
                 style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.black,
                     fontSize: 16
                 ),
               )
@@ -107,7 +107,7 @@ class _SearchState extends State<Search> {
               ),
               child: Text("Message",
                 style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.black,
                     fontSize: 16
                 ),),
             ),
@@ -153,14 +153,15 @@ class _SearchState extends State<Search> {
                     child: TextField(
                       controller: searchEditingController,
                       style: simpleTextStyle(),
-                      decoration: InputDecoration(
-                        hintText: "search username ...",
-                        hintStyle: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                        border: InputBorder.none
-                      ),
+                      decoration: _decorate("search users", "search")
+                      // decoration: InputDecoration(
+                      //   hintText: "search username ...",
+                      //   hintStyle: TextStyle(
+                      //     color: Colors.black,
+                      //     fontSize: 16,
+                      //   ),
+                      //
+                      // ),
                     ),
                   ),
                   GestureDetector(
@@ -182,8 +183,8 @@ class _SearchState extends State<Search> {
                           borderRadius: BorderRadius.circular(40)
                         ),
                         padding: EdgeInsets.all(12),
-                        child: Image.asset("assets/images/search_white.png",
-                          height: 25, width: 25,)),
+                        child: Image.asset("assets/images/search.png",
+                          height: 35, width: 35,)),
                   )
                 ],
               ),
@@ -192,6 +193,16 @@ class _SearchState extends State<Search> {
           ],
         ),
       ),
+    );
+  }
+  InputDecoration _decorate(String hintText, String labelText) {
+    return InputDecoration(
+      hintText: hintText,
+      labelText: labelText,
+      border: new OutlineInputBorder(
+          borderSide: new BorderSide(color: Colors.teal)
+      ),
+      contentPadding: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
     );
   }
 }

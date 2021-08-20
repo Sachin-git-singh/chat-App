@@ -7,6 +7,7 @@ import 'package:chatapp/views/forgot_password.dart';
 import 'package:chatapp/widget/widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SignIn extends StatefulWidget {
   final Function toggleView;
@@ -28,18 +29,17 @@ class _SignInState extends State<SignIn> {
   bool isLoading = false;
 
   signIn() async {
-    if (formKey.currentState.validate()) {
+    if (isvalidate()) {
       setState(() {
         isLoading = true;
       });
-
       await authService
           .signInWithEmailAndPassword(
-              emailEditingController.text, passwordEditingController.text)
+          emailEditingController.text, passwordEditingController.text)
           .then((result) async {
-        if (result != null)  {
+        if (result != null) {
           QuerySnapshot userInfoSnapshot =
-              await DatabaseMethods().getUserInfo(emailEditingController.text);
+          await DatabaseMethods().getUserInfo(emailEditingController.text);
 
           HelperFunctions.saveUserLoggedInSharedPreference(true);
           HelperFunctions.saveUserNameSharedPreference(
@@ -52,11 +52,44 @@ class _SignInState extends State<SignIn> {
         } else {
           setState(() {
             isLoading = false;
+            PrintToast("Something went wrong");
             //show snackbar
           });
         }
       });
     }
+  }
+
+  bool isvalidate(){
+    String email = emailEditingController.text;
+    String passord = passwordEditingController.text;
+    bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email);
+    if(email==null || email.isEmpty){
+      PrintToast("Please enter email id");
+      return false;
+    }else if(!emailValid){
+      PrintToast("Please enter valid email id");
+      return false;
+    }else if(passord==null || passord.isEmpty){
+      PrintToast("Please enter your password");
+      return false;
+    }else if(passord.length<6){
+      PrintToast("Password's length should be more than 6");
+      return false;
+    }
+    return true;
+  }
+
+  void PrintToast(String str){
+    Fluttertoast.showToast(
+        msg: str,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0
+    );
   }
 
   @override
@@ -67,63 +100,36 @@ class _SignInState extends State<SignIn> {
           ? Container(
               child: Center(child: CircularProgressIndicator()),
             )
-          : Container(
+          : SingleChildScrollView (
+        child:Container(
               padding: EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  Spacer(),
-                  Form(
-                    key: formKey,
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          validator: (val) {
-                            return RegExp(
-                                        r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                                    .hasMatch(val)
-                                ? null
-                                : "Please Enter Correct Email";
-                          },
-                          controller: emailEditingController,
-                          style: simpleTextStyle(),
-                          decoration: textFieldInputDecoration("email"),
-                        ),
-                        TextFormField(
-                          obscureText: true,
-                          validator: (val) {
-                            return val.length > 6
-                                ? null
-                                : "Enter Password 6+ characters";
-                          },
-                          style: simpleTextStyle(),
-                          controller: passwordEditingController,
-                          decoration: textFieldInputDecoration("password"),
-                        ),
-                      ],
+                  Container(
+                    margin: EdgeInsets.only(left: 0, top:160, right: 0, bottom:0),
+                    child: Text(
+                      'Login',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 40.0,
+                      ),
                     ),
                   ),
-                  SizedBox(
-                    height: 16,
+                  Container(
+                    margin: EdgeInsets.only(left: 0, top:10, right: 0, bottom:0),
+                    padding: EdgeInsets.all(10),
+                    child: TextFormField(
+                        controller: emailEditingController,
+                        decoration: _decorate("Enter Email", "Email Id")
+                    ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ForgotPassword()));
-                        },
-                        child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            child: Text(
-                              "Forgot Password?",
-                              style: simpleTextStyle(),
-                            )),
-                      )
-                    ],
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    child: TextFormField(
+                        obscureText: true,
+                        controller: passwordEditingController,
+                        decoration: _decorate("Password", "Password")
+                    ),
                   ),
                   SizedBox(
                     height: 16,
@@ -153,28 +159,15 @@ class _SignInState extends State<SignIn> {
                   SizedBox(
                     height: 16,
                   ),
-                  Container(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        color: Colors.white),
-                    width: MediaQuery.of(context).size.width,
-                    child: Text(
-                      "Sign In with Google",
-                      style:
-                          TextStyle(fontSize: 17, color: CustomTheme.textColor),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         "Don't have account? ",
-                        style: simpleTextStyle(),
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                        ),
                       ),
                       GestureDetector(
                         onTap: () {
@@ -183,7 +176,7 @@ class _SignInState extends State<SignIn> {
                         child: Text(
                           "Register now",
                           style: TextStyle(
-                              color: Colors.white,
+                              color: Colors.black,
                               fontSize: 16,
                               decoration: TextDecoration.underline),
                         ),
@@ -196,6 +189,18 @@ class _SignInState extends State<SignIn> {
                 ],
               ),
             ),
+      ),
+    );
+  }
+
+  InputDecoration _decorate(String hintText, String labelText) {
+    return InputDecoration(
+      hintText: hintText,
+      labelText: labelText,
+      border: new OutlineInputBorder(
+          borderSide: new BorderSide(color: Colors.teal)
+      ),
+      contentPadding: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
     );
   }
 }
